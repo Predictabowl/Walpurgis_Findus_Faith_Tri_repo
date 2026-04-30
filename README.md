@@ -21,3 +21,8 @@ To ensure the engine overwrites the spawners correctly and resolves the conflict
 4. `Walpurgis_Findus_Faith_Tri.pk3` *(This compatibility mod)*
 
 *Note: Other mods can be loaded in order depending on what you want to achieve (animations, texture packs, map packs, etc.), provided they don't overwrite these specific Walpurgis or Faithless: Trilogy weapon systems again.*
+
+## Related Projects
+- **Findus Patch:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_Patch_repo)
+- **No Shield Frag:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_NoShieldFrag_repo)
+- **Faithless Trilogy Compatibility:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_Faith_Tri_repo)
