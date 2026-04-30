@@ -1,0 +1,2 @@
+// SLOT 3 - Mid-Tier (Compatibility Override for WalLightbringer)
+setslot 3 Aestus WalLightbringer Gladius DagonsCane

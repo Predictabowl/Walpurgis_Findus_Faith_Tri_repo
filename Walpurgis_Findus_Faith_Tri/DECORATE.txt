@@ -1,0 +1,2 @@
+#include "Spawners_faith_tri.txt"
+#include "actors/CrusaderLB.txt"

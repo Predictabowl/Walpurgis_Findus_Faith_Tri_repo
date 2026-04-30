@@ -1,0 +1,1441 @@
+Actor WalLightbringer : CrusaderWeapon 23801 //replaces CWeapStaff
+{
+	//I love the idea of the Lightbringer. It was the very first
+	//thing I made for Walp (at the time a HexArcana 1.1 fork).
+	//Its changed alot since the original coding, mind you,
+	//made prettier and much more fun to use. And I love it still.
+	Inventory.PickupMessage "\c[white]Blessed with the \c[gold]Holy Lightbringer\c[white]! [\c[sapphire]2\c[white]]"
+	Inventory.PickupSound "Pickup/WeaponStaff"
+	Inventory.RestrictedTo CrusaderPlayer
+	VisibleToPlayerClass CrusaderPlayer
+	Weapon.SlotNumber 2
+	Weapon.AmmoType1 "Mana1W"
+	weapon.AmmoGive1 25
+	Weapon.AmmoUse1 3
+	Weapon.AmmoType2 "Mana1W"
+	weapon.AmmoGive2 0
+	Weapon.AmmoUse2 3
+	Weapon.MinSelectionAmmo1 3
+	Weapon.KickBack 100
+	Weapon.SelectionOrder 3
+	+UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.1
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.5
+	Decal "PlasmaScorchLower"
+	Damagetype "Holy"
+	Tag "The Lightbringer"
+	Obituary "%o was shown the light. It was rather hot and deadly."
+	States
+	{
+	Spawn:
+		LTBR A -1
+		Loop
+	Select:
+		L1TB Q 1 A_Raise //raises in the Q state (deactivated)
+		Loop
+	Select2:
+		L1TB Q 3 {if(CountInv("Chainbolt") > 0) //reenable mutate prism if active
+					{
+					A_Overlay(-51,"MiniPrismOver");
+					A_OverlayFlags(-51,PSPF_ADDWEAPON,true);
+					A_Overlay(52,"PrismOverlay");
+					A_OverlayFlags(52,PSPF_ADDWEAPON|PSPF_ALPHA|PSPF_FORCEALPHA,true);
+					A_OverlayAlpha(52,0.6);
+					A_StartSound("LBCharge",CHAN_AUTO,CHANF_OVERLAP,1,ATTN_NONE,frandom(0.98,1.03));}
+				  else
+					{A_StartSound("LBRecharge",CHAN_AUTO,CHANF_OVERLAP,1,ATTN_NONE,frandom(0.98,1.03));} 
+				 }  
+		L1TB P 3 {A_GiveInventory("LightInHand",1); A_TakeInventory("MaceChargeCheck2");}
+		Goto Ready
+	Ready:
+		L1TB B 0 {if(CountInv("Mana1W") < 3 )
+					{A_GiveInventory("ChainHook",1);}} //if we managed to get here without ammo
+		L1TB B 0 A_JumpIfInventory("ChainHook", 1, "NoAmmo") //Goto No ammo!
+		L1TB B 0 {if(CountInv("LightInHand") == 0 )//otherwise first boot up
+					{A_GiveInventory("MaceChargeCheck2",1);}}
+		L1TB B 0 A_JumpIfInventory("MaceChargeCheck2", 1, "Select2") //First Boot Up
+		Goto Ready22
+	Ready22:
+		L1TB BBBCCCDDDEEE 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+	NoAmmo:
+		L1TB N 0 A_TakeInventory("ChainHook")
+		L1TB N 0 A_StopSound(CHAN_6)
+		L1TB NO 4 A_CheckReload
+	ManaLess:
+		L1TB Q 2 A_CheckReload //A_WeaponReady(WRF_NOPRIMARY|WRF_NOSECONDARY)
+		Loop
+	Deselect:
+		TNT1 A 0 A_TakeInventory("LightInHand")
+		TNT1 A 0 A_TakeInventory("MaceChargeCheck1") //In case you die whilst using the laser.
+		TNT1 A 0 A_TakeInventory("QUFLMCounter") //In case you run out of ammo with the mutated laser.
+		Goto Deselect2
+	Deselect2:
+		L1TB O 0 A_StopSound(CHAN_7)
+		L1TB O 0 A_JumpIfInventory("Mana1W", 3, "DeselectFull")
+		Goto DeselectEmpty
+	DeselectFull:
+		L1TB NNNOOOQQQ 1 A_Lower
+	DeselectEmpty:
+		L1TB Q 1 A_Lower
+		Loop	
+	PrimaryOverlay:
+		5H1N A 0 Bright {A_OverlayRotate(-52,randompick(0,180)); A_OverlayFlags(-52,PSPF_FLIP,random(0,1));}
+	PrimaryShot:
+		5H1N AJ 2 Bright
+		5H1N I 3 Bright
+		5H1N JA 2 Bright
+		Stop
+	PrimaryOverlayFasterMutate:
+		5H1N A 0 {A_OverlayRotate(-52,randompick(0,180)); A_OverlayFlags(-52,PSPF_FLIP,random(0,1));}
+		5H1N B 1 Bright
+		5H1N C 2 Bright
+		5H1N B 2 Bright
+		Stop
+	PrismOverlay:
+		LUV9 A 0 Bright
+		LUV9 ABCDEFGHA 2 Bright
+		Stop
+	LaserOverlay:
+		5H1N A 0 Bright
+		5H1N ABC 2 Bright
+	LaserOverlayLoop:
+		5H1N DEFGHGFEDC 2 Bright A_JumpIfInventory("MaceChargeCheck1", 1, "LaserOverKill")
+		Loop
+	LaserOverKill:
+		5H1N A 0 Bright A_TakeInventory("MaceChargeCheck1")
+		5H1N BA 2 Bright
+		Stop
+	LaserOverBlast:
+		5H1N ABCDEFGHGFEDC 2 Bright
+		Stop
+	MiniPrismOver:
+		PR15 ABCDEFGHIJKLMNOPQRSTUW 2 A_JumpIfInventory("ChainBolt", 41, "PrismShattersOver")
+		Loop
+	PrismShattersOver:
+		PR15 "#" 0 {A_SpawnItemEx("ImShattered",65,0,32,6+velx,0+vely,2,0,SXF_SETMASTER); A_TakeInventory("ChainBolt");}
+		Stop
+	Fire:
+		L1TB I 0 A_JumpIfInventory("Mana1W", 3, "FireSunShot")
+		Goto NoAmmo
+	FireSunShot:
+		L1TB N 0 A_JumpIfInventory("Chainbolt", 1, "FireSunShot2") //mutated prism active overrides other modes
+		L1TB N 0 {if(CountInv("LightMutate") == 1 || CountInv("LightMutate") == 4 || CountInv("LightMutate") == 6 || CountInv("LightMutate") == 9)
+				{A_GiveInventory("Spearcheck2",1);}	}
+		L1TB N 0 A_JumpIfInventory("Spearcheck2", 1, "FireRapid")
+	FireSunShot2:
+		L1TB N 0 { 	A_Overlay(-52,"PrimaryOverlay");
+					A_OverlayPivot(-52,0.5,0.5);
+					A_OverlayFlags(-52,PSPF_ADDWEAPON,true);}
+		L1TB N 1 A_StartSound("LBMelt",CHAN_AUTO,CHANF_OVERLAP,0.9,ATTN_NONE,frandom(0.98,1.03))
+		L1TB N 1 A_Light(5)
+		L1TB F 1 {if(random(0,4) >= 3 && (GetCVar("walp_silentprotagonists")==0) && (CountInv("PowerShutItWilson")) == 0)
+				{A_StartSound("CrusExertsLight",CHAN_AUTO,CHANF_OVERLAP,0.9,ATTN_NONE,frandom(0.97,1.04));}}
+		L1TB F 1 Offset (0,34) 
+				{
+				if(CountInv("Chainbolt") > 0)
+				{
+				A_FireProjectile("RainbowBoltMutate",2,0,-11,0,CMF_AIMDIRECTION,0);
+				A_FireProjectile("RainbowBoltMutate",1,0,-6,0,CMF_AIMDIRECTION,0);
+				A_FireProjectile("RainbowBoltMutate",-1,0,6,0,CMF_AIMDIRECTION,0);
+				A_FireProjectile("RainbowBoltMutate",-2,0,11,0,CMF_AIMDIRECTION,0);
+				A_GiveInventory("Chainbolt",4);
+				}
+				else if(CountInv("LightUpgrade") == 1 || CountInv("LightUpgrade") == 4 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 9)
+				{
+				A_FireProjectile("SunSpinner",1,0,-14,0,CMF_AIMDIRECTION,0);
+				A_FireProjectile("SunSpinner",0,0,0,14,CMF_AIMDIRECTION,4);
+				A_FireProjectile("SunSpinner",-1,0,14,0,CMF_AIMDIRECTION,0);				
+				}
+				else
+				{
+				A_FireProjectile("SunProjectile",0,0,0,0,CMF_AIMDIRECTION);
+				}
+				}
+		L1TB G 1 Offset (0,40) {A_SetPitch(Pitch-1.5); A_TakeInventory("Mana1W", 1,TIF_NOTAKEINFINITE);
+										A_AlertMonsters;}
+		L1TB G 1 Offset (0,46) {A_SetPitch(Pitch+0.5); A_TakeInventory("Mana1W", 1,TIF_NOTAKEINFINITE);}
+		L1TB H 1 Offset (0,52) {A_SetPitch(Pitch+0.5); A_TakeInventory("Mana1W", 1,TIF_NOTAKEINFINITE);}
+		L1TB H 1 Offset (0,48) A_SetPitch(Pitch+0.5)
+		L1TB H 1 Offset (0,44) A_Light(0)
+		L1TB I 1 Offset (0,40)
+		L1TB I 1 Offset (0,36)
+		L1TB I 1 Offset (0,32)
+		L1TB BCD 3 
+		L1TB B 0 A_JumpIfInventory("CoptersSound", 1,"PrismFeed2")
+		L1TB B 0 A_Refire
+		L1TB B 0 A_JumpIfInventory("Mana1W", 3, "Ready")
+		Goto NoAmmo
+	RefireRapid:
+		L1TB I 0 A_JumpIfInventory("Mana1W", 1, "FireRapid")
+		Goto NoAmmo
+	FireRapid: //mutated primary fire
+		L1TB N 0 { 	A_Overlay(-52,"PrimaryOverlayFasterMutate");
+			A_OverlayPivot(-52,0.5,0.5);
+			A_OverlayFlags(-52,PSPF_ADDWEAPON,true);
+			A_TakeInventory("Spearcheck2",1);}
+		L1TB N 1 A_StartSound("LightbringerRapido",CHAN_AUTO,CHANF_OVERLAP,0.7,ATTN_NORM,frandom(0.95,1.05))
+		L1TB F 2 Offset (0,40) A_FireProjectile("SunRapido",random(-5,5),0,0,0,CMF_AIMDIRECTION,random(-3,3))
+		L1TB G 1 Offset (0,52) {if(CountInv("PunchLeft") == 0)
+					{A_TakeInventory("Mana1W", 1,TIF_NOTAKEINFINITE);
+					 A_GiveInventory("PunchLeft",1);}
+					 else
+					 {A_TakeInventory("PunchLeft");}} //reduces rapid-fire mana consumption
+		L1TB H 1 Offset (0,44)
+		L1TB I 1 Offset (0,36)
+		L1TB B 0 A_JumpIfInventory("CoptersSound", 1,"PrismFeed2")
+		L1TB B 0 A_Refire("RefireRapid")
+		L1TB B 0 A_JumpIfInventory("Mana1W", 3, "Ready")
+		Goto NoAmmo
+	AltFire:	
+		L1TB G 0 Offset (0,34) A_JumpIfInventory("Mana1W",3,"AltCheck")
+		Goto NoAmmo
+	AltCheck:
+		L1TB N 1 Offset (0,34) A_StartSound("LaserLoop",CHAN_7,CHANF_OVERLAP|CHANF_LOOP,1,ATTN_NORM,1)
+		L1TB N 1 Offset (0,37) A_AlertMonsters
+		L1TB H 1 Offset (0,40) { 	A_Overlay(52,"LaserOverlay");
+			A_OverlayFlags(52,PSPF_ADDWEAPON|PSPF_ALPHA|PSPF_FORCEALPHA,true);
+			A_OverlayAlpha(52,0.7);}
+		L1TB H 1 Offset (0,43)
+		L1TB I 1 Offset (0,46) 
+		L1TB I 1 Offset (0,49) 
+		L1TB I 0 {if(CountInv("LightUpgrade") == 3 || CountInv("LightUpgrade") == 4 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{A_StartSound("LBSuperReady",25,CHANF_OVERLAP|CHANF_LOOP,1,ATTN_NORM,1);}}
+		Goto AltLaser
+	AltDoubleCheck:	
+		L1TB G 0 Offset (0,50) A_CheckReload
+		L1TB G 0 Offset (0,50) A_JumpIfInventory("Mana1W",3,"AltLaser")
+		Goto NoAmmo
+	AltLaser:
+		L1TB J 0 A_JumpIfInventory("LightningCheck", 1, "PrismFeed") //Feeds the Prism if applicable.
+		L1TB J 1 Offset (1,52) //JT- The Laser is technically three overlapping railgun shots with long lifespans!!
+				{
+				if(CountInv("Chainbolt") > 0)
+				{
+					A_GiveInventory("Chainbolt",1);
+					A_GiveInventory("BowCharge1",1);
+					if(CountInv("BowCharge1") == 6)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam5");
+					A_TakeInventory("BowCharge1");
+					}
+					else if (CountInv("BowCharge1") == 5)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam4");
+					}
+					else if (CountInv("BowCharge1") == 4)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam3");
+					}
+					else if (CountInv("BowCharge1") == 3)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam2");
+					}
+					else if (CountInv("BowCharge1") == 2)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam");
+					}
+					else 
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam6");
+					}	
+				}				
+				else if(CountInv("LightUpgrade") == 3 || CountInv("LightUpgrade") == 4 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+					if(CountInv("QUFLMCounter") == 11)
+						{A_RailAttack(random(24,48), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,950,6,6,0,"SolarbeamPhat");
+						 A_GiveInventory("QUFLMCounter",1);	
+						 A_Stopsound(7);
+						 A_Stopsound(25);
+						 A_StartSound("LBSuperCharge",CHAN_6,CHANF_OVERLAP,1,ATTN_NORM,1);
+						 A_StartSound("LaserLoop",CHAN_7,CHANF_OVERLAP|CHANF_LOOP,1,ATTN_NORM,0.8);
+						 A_Light(16);
+						 A_Recoil(5);
+						 A_SetBlend("Gold",0.7,10);
+						 A_Overlay(-51,"LaserOverBlast");
+						 A_QuakeEx(4,4,8,20,0,1,"-",QF_SCALEDOWN);
+						 A_OverlayPivot(-51,0.5,0.5);
+						 A_OverlayScale(-51,2,2);
+						 A_OverlayFlags(-51,PSPF_ADDWEAPON,true);
+						 if(CountInv("PowerAmbitMana") < 1) 
+								{A_TakeInventory ("Mana1W", 1);	} }
+					else if(CountInv("QUFLMCounter") >= 12)
+						{A_RailAttack(random(24,48), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,950,6,6,0,"SolarbeamPhat");
+						 A_Recoil(1);}
+					else
+						{A_RailAttack(random(7,17), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,650,6,6,0,"Solarbeam");
+						A_GiveInventory("QUFLMCounter",1);}
+				}
+				else if(CountInv("LightMutate") == 3 || CountInv("LightMutate") == 4 || CountInv("LightMutate") == 8 || CountInv("LightMutate") == 9)
+				{
+				A_RailAttack(random(7,16), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",-8,0,650,6,6,0,"Solarbeam");
+				A_RailAttack(random(7,16), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",8,0,650,6,6,0,"Solarbeam");
+				}
+				else
+				{
+				A_RailAttack(random(10,25), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,650,6,6,0,"Solarbeam");
+				}
+				A_Light(5);
+				A_SetPitch(Pitch-0.3);
+				if(CountInv("PowerAmbitMana") < 1) 
+				{A_TakeInventory ("Mana1W", 1);	} 
+				A_CheckReload;
+				}
+		L1TB K 1
+		L1TB L 1 Offset (-1,50) {
+				if(CountInv("Chainbolt") > 0)
+				{
+					A_GiveInventory("BowCharge1",1);
+					if(CountInv("BowCharge1") == 6)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam5");
+					A_TakeInventory("BowCharge1");
+					}
+					else if (CountInv("BowCharge1") == 5)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam4");
+					}
+					else if (CountInv("BowCharge1") == 4)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam3");
+					}
+					else if (CountInv("BowCharge1") == 3)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam2");
+					}
+					else if (CountInv("BowCharge1") == 2)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam");
+					}
+					else 
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam6");
+					}	
+				}	
+				else if(CountInv("LightUpgrade") == 3 || CountInv("LightUpgrade") == 4 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+					if(CountInv("QUFLMCounter") == 11)
+						{A_RailAttack(random(22,36), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,950,6,6,0,"SolarbeamPhat");
+						 A_GiveInventory("QUFLMCounter",1);	
+						 A_Stopsound(7);
+						 A_Stopsound(25); 
+						 A_StartSound("LBSuperCharge",CHAN_6,CHANF_OVERLAP,1,ATTN_NORM,1);
+						 A_StartSound("LaserLoop",CHAN_7,CHANF_OVERLAP|CHANF_LOOP,1,ATTN_NORM,0.8);
+						 if(CountInv("PowerAmbitMana") < 1) 
+								{A_TakeInventory ("Mana1W", 3);	}
+						 A_Light(16);
+						 A_Recoil(7);
+						 A_SetBlend("Gold",0.7,10);
+						 A_Overlay(-51,"LaserOverBlast");
+						 A_QuakeEx(4,4,8,20,0,1,"-",QF_SCALEDOWN);
+						 A_OverlayPivot(-51,0.5,0.5);
+						 A_OverlayScale(-51,2,2);
+						 A_OverlayFlags(-51,PSPF_ADDWEAPON,true);}
+					else if(CountInv("QUFLMCounter") >= 12)
+						{A_RailAttack(random(22,36), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,950,6,6,0,"SolarbeamPhat");
+						A_Recoil(1);}
+					else
+						{A_RailAttack(random(7,17), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,650,6,6,0,"Solarbeam");
+						A_GiveInventory("QUFLMCounter",1);}}
+				else if(CountInv("LightMutate") == 3 || CountInv("LightMutate") == 4 || CountInv("LightMutate") == 8 || CountInv("LightMutate") == 9)
+				{
+				A_RailAttack(random(7,19), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",-9,0,650,6,6,0,"Solarbeam");
+				A_RailAttack(random(7,19), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",9,0,650,6,6,0,"Solarbeam");
+				}
+				else
+				{
+				A_RailAttack(random(10,25), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,650,6,6,0,"Solarbeam");
+				}}
+		L1TB M 1
+		L1TB F 1 Offset (1,52) {
+				if(CountInv("Chainbolt") > 0)
+				{
+					A_GiveInventory("BowCharge1",1);
+					A_GiveInventory("Chainbolt",1);
+					if(CountInv("BowCharge1") == 6)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam5");
+					A_TakeInventory("BowCharge1");
+					}
+					else if (CountInv("BowCharge1") == 5)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam4");
+					}
+					else if (CountInv("BowCharge1") == 4)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam3");
+					}
+					else if (CountInv("BowCharge1") == 3)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam2");
+					}
+					else if (CountInv("BowCharge1") == 2)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam");
+					}
+					else 
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam6");
+					}	
+				}	
+				else if(CountInv("LightMutate") == 3 || CountInv("LightMutate") == 4 || CountInv("LightMutate") == 8 || CountInv("LightMutate") == 9)
+				{
+				A_FireBullets(9,4,-1,(0),"FireLaserSuper",FBF_NOFLASH|FBF_EXPLICITANGLE,700,"None",32,1);
+				A_FireBullets(-9,4,-1,(0),"FireLaserSuper",FBF_NOFLASH|FBF_EXPLICITANGLE,700,"None",32,-1);
+				}
+				else if(CountInv("LightUpgrade") == 3 || CountInv("LightUpgrade") == 4 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+				A_FireBullets(0,4,-1,(0),"FireLaserX",FBF_NOFLASH|FBF_EXPLICITANGLE,950,"None",32,-1);
+				}
+				else
+				{
+				A_FireBullets(0,4,-1,(0),"FireLaserX",FBF_NOFLASH|FBF_EXPLICITANGLE,650,"None",32,-1);
+				}
+				
+				}
+		L1TB G 1
+		L1TB H 1 Offset (-1,50) {
+				if(CountInv("Chainbolt") > 0)
+				{
+					A_GiveInventory("BowCharge1",1);
+					if(CountInv("BowCharge1") == 6)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam5");
+					A_TakeInventory("BowCharge1");
+					}
+					else if (CountInv("BowCharge1") == 5)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam4");
+					}
+					else if (CountInv("BowCharge1") == 4)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam3");
+					}
+					else if (CountInv("BowCharge1") == 3)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam2");
+					}
+					else if (CountInv("BowCharge1") == 2)
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam");
+					}
+					else 
+					{A_RailAttack(random(20,30), 0, 0,"FF 00 00", "FF 00 00",RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",(CountInv("BowCharge1")-3),2,1050,6,3,0,"DiscoBeam6");
+					}	
+				}	
+				else if(CountInv("LightUpgrade") == 3 || CountInv("LightUpgrade") == 4 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+					if(CountInv("QUFLMCounter") == 11)
+						{A_RailAttack(random(22,36), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,950,6,6,0,"SolarbeamPhat");
+						 A_GiveInventory("QUFLMCounter",1);	
+						 A_Stopsound(7);
+						 A_Stopsound(25);
+						 A_StartSound("LBSuperCharge",CHAN_6,CHANF_OVERLAP,1,ATTN_NORM,1);
+						 A_StartSound("LaserLoop",CHAN_7,CHANF_OVERLAP|CHANF_LOOP,1,ATTN_NORM,0.8);
+						 if(CountInv("PowerAmbitMana") < 1) 
+								{A_TakeInventory ("Mana1W", 3);	}
+						 A_Light(16);
+						 A_SetBlend("Gold",0.7,10);
+						 A_Recoil(7);
+						 A_QuakeEx(4,4,8,20,0,1,"-",QF_SCALEDOWN);
+						 A_Overlay(-51,"LaserOverBlast");
+						 A_OverlayPivot(-51,0.5,0.5);
+						 A_OverlayScale(-51,2,2);
+						 A_OverlayFlags(-51,PSPF_ADDWEAPON,true);}
+					else if(CountInv("QUFLMCounter") >= 12)
+						{A_RailAttack(random(22,39), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,950,6,6,0,"SolarbeamPhat");
+						A_Recoil(1);}
+					else
+						{A_RailAttack(random(7,17), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,650,6,6,0,"Solarbeam");
+						A_GiveInventory("QUFLMCounter",1);}
+				}
+				else if(CountInv("LightMutate") == 3 || CountInv("LightMutate") == 4 || CountInv("LightMutate") == 8 || CountInv("LightMutate") == 9)
+				{
+				A_RailAttack(random(7,17), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",-10,0,650,6,6,0,"Solarbeam");
+				A_RailAttack(random(7,17), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ|RGF_EXPLICITANGLE, 0, "FireActive",10,0,650,6,6,0,"Solarbeam");
+				}
+				else
+				{
+				A_RailAttack(random(10,25), 0, 0, "None", "ff e9 6b", RGF_SILENT|RGF_CENTERZ, 0, "FireActive",0,0,650,6,6,0,"Solarbeam");
+				}}
+		L1TB I 1
+		L1TB A 0 A_Refire("AltDoubleCheck")
+		L1TB J 1 Offset (0,49) {A_StopSound(CHAN_7); A_StopSound(25); A_GiveInventory("MaceChargeCheck1",1); A_TakeInventory("QUFLMCounter");}
+		L1TB B 1 Offset (0,46) A_StopSound(CHAN_6)
+		L1TB C 1 Offset (0,43) A_Light(0)
+		L1TB C 1 Offset (0,40)
+		L1TB D 1 Offset (0,37)
+		L1TB D 1 Offset (0,34)
+		L1TB I 0 A_JumpIfInventory("Mana1W", 3, "Ready")
+		Goto NoAmmo
+	PrismFeed: //0.93 onwards shouldn't be called anymore but left for insurance.
+		L1TB F 0 
+		{	A_GiveToChildren("LightningCheck",1);
+			A_TakeInventory("LightningCheck");	}
+		Goto AltLaser
+	PrismFeed2: //0.93 onwards shouldn't be called anymore but left for insurance.
+		L1TB F 0 
+		{	
+			A_GiveToChildren("CoptersSound",1);
+			A_TakeInventory("CoptersSound");	}
+		Goto Ready
+	Reload:		
+		L1TB I 0 A_JumpIfInventory("PowerAmbitMana", 1,"PrismCreate")
+		L1TB M 0 A_JumpIfInventory("Mana1W",15,"PrismCreate")
+		Goto Fire
+	PrismCreate:
+		L1TB M 0 { 	A_Overlay(52,"PrismOverlay");
+			A_OverlayFlags(52,PSPF_ADDWEAPON|PSPF_ALPHA|PSPF_FORCEALPHA,true);
+			A_OverlayAlpha(52,0.6);
+			A_StartSound("LBCharge",CHAN_AUTO,CHANF_OVERLAP,1,ATTN_NONE,frandom(0.98,1.03));}
+		L1TB MLKJ 1
+		L1TB I 1 A_SetBlend("fffbcf", 0.5, 40)
+		L1TB H 1 Offset (0,34) {
+		if(CountInv("LightMutate") == 5 || CountInv("LightMutate") == 6 || CountInv("LightMutate") == 8 || CountInv("LightMutate") == 9)
+		{
+		A_GiveInventory("ChainBolt",1);
+		A_Overlay(-51,"MiniPrismOver");
+		A_OverlayFlags(-51,PSPF_ADDWEAPON,true);
+		}
+		else
+		{
+		A_SpawnItemEx("PrismLB",88,0,16,0,0,0,0,SXF_SETMASTER);
+		}}
+		L1TB G 1 Offset (0,37) A_PlaySound("LightSh", 6, 1.6)
+		L1TB F 1 Offset (0,40)  {if(CountInv("LightUpgrade") == 5 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{A_TakeInventory("Mana1W", 4,TIF_NOTAKEINFINITE);}
+				else
+				{A_TakeInventory("Mana1W", 5,TIF_NOTAKEINFINITE);}}
+		L1TB M 1 Offset (0,43) {if(CountInv("LightUpgrade") == 5 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{A_TakeInventory("Mana1W", 4,TIF_NOTAKEINFINITE);}
+				else
+				{A_TakeInventory("Mana1W", 5,TIF_NOTAKEINFINITE);}}
+		L1TB L 1 Offset (0,46) {if(CountInv("LightUpgrade") == 5 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{A_TakeInventory("Mana1W", 4,TIF_NOTAKEINFINITE);}
+				else
+				{A_TakeInventory("Mana1W", 5,TIF_NOTAKEINFINITE);}}
+		L1TB N 1 Offset (0,49) A_StartSound("ArmourX",CHAN_AUTO,CHANF_OVERLAP,1,ATTN_NONE,frandom(0.98,1.03))
+		Goto Ready
+	}
+}
+
+Actor SunProjectile : FastProjectile //JT- Fired by Lightbringer Primary
+{
+	Radius 10
+	Height 6
+	Damage (0) 
+	Damagetype "Holy"
+	Alpha 0.8
+	Scale 0.8
+	MissileType "SunProjectileTrail" //0.84 - New Lightbringer stuff
+	MissileHeight 8
+	Renderstyle Add
+	Projectile
+	Decal "SerpentScorch"
+	Species "PlayerAlly"
+	+MTHRUSPECIES 
+	+CANBOUNCEWATER
+	+FORCEXYBILLBOARD
+	+FORCERADIUSDMG
+	+ACTIVATEIMPACT
+	+ROLLSPRITE
+	+ROLLCENTER
+	+HITTRACER
+	speed 120
+	DeathSound "FireCast"
+	States
+	{
+	Spawn:
+		UXSH A 0 Nodelay 
+		UXSH ABCDEF 1 Bright A_SetRoll(roll+20)
+		Goto Spin
+	Spin:
+		UXSH G 1 Bright A_SetRoll(roll+20)
+		Loop
+	Death:
+		TNT1 A 0 Bright A_CheckProximity("PrismActive","PrismLB",100,1)
+		Goto RealDeath
+	PrismActive:
+		UXSH F 0 Bright A_GiveInventory("CoptersSound",1,AAPTR_TRACER) //upgraded routine 0.93
+		UXSH F 0 Bright A_GiveInventory("LightningCheck",1,AAPTR_TRACER)  
+		Goto RealDeath
+	RealDeath:
+		SUNP A 0 A_StopSoundEx("SoundSlot7")
+		SUNP A 0 
+		{
+		A_Stop;
+		A_Explode(random(55,93)+random(2,8),75,XF_THRUSTZ,true,75);
+		A_SetScale(1.3,1.3);
+		}
+		SUNP C 2 Bright
+		SUNP D 2 Bright
+		SUNP E 2 Bright
+		SUNP F 2 Bright
+		SUMP G 2 Bright A_SpawnItemEx ("FireLaserX",0,0,0,0,0,0)
+		SUMP H 2 Bright
+		Stop
+	}
+}
+
+Actor SunSpinner : FastProjectile //upgraded primary fire
+{
+	Radius 10
+	Height 6
+	Damage (0) 
+	Damagetype "Holy"
+	Alpha 0.8
+	Scale 0.8
+	MissileType "SunProjectileTrail" //0.84 - New Lightbringer stuff
+	MissileHeight 8
+	Renderstyle Add
+	Projectile
+	Decal "SerpentScorch"
+	Species "PlayerAlly"
+	+MTHRUSPECIES 
+	+CANBOUNCEWATER
+	+FORCEXYBILLBOARD
+	+FORCERADIUSDMG
+	+ACTIVATEIMPACT
+	+ROLLSPRITE
+	+ROLLCENTER
+	+HITTRACER
+	speed 120
+	DeathSound "FireCast"
+	States
+	{
+	Spawn:
+		UXSH A 0 Nodelay 
+		UXSH ABCDEF 1 Bright {
+		A_SetRoll(roll+20);
+		}
+		Goto Spin
+	Spin:
+		UXSH G 1 Bright {
+		A_SetRoll(roll+20);
+		}
+		Loop
+	Death:
+		TNT1 A 0 Bright A_CheckProximity("PrismActive","PrismLB",100,1)  
+		Goto RealDeath
+	PrismActive:
+		UXSH F 0 Bright A_GiveInventory("CoptersSound",1,AAPTR_TRACER) //upgraded routine 0.93
+		UXSH F 0 Bright A_GiveInventory("LightningCheck",1,AAPTR_TRACER)  
+		Goto RealDeath
+	RealDeath:
+		SUNP A 0 A_StopSoundEx("SoundSlot7")
+		SUNP A 0 
+		{
+		A_Stop;
+		A_SetScale(1.1,1.1);
+		A_Explode(random(36,69)+random(1,5),65,XF_THRUSTZ,true,65);
+		}
+		SUNP C 2 Bright
+		SUNP D 2 Bright
+		SUNP E 2 Bright
+		SUNP F 2 Bright
+		SUMP G 2 Bright A_SpawnItemEx ("FireLaserX",0,0,0,0,0,0)
+		SUMP H 2 Bright
+		Stop
+	}
+}
+
+Actor SunRapido : FastProjectile //mutated primary fire
+{
+	Radius 8
+	Height 6
+	Damage (random(26,56)) 
+	Damagetype "Holy"
+	Alpha 0.8
+	Scale 0.6
+	MissileType "SunProjectileTrail" //0.84 - New Lightbringer stuff
+	MissileHeight 8
+	Renderstyle Add
+	Projectile
+	Decal "SerpentScorch"
+	Species "PlayerAlly"
+	+MTHRUSPECIES 
+	+CANBOUNCEWATER
+	+FORCEXYBILLBOARD
+	+FORCERADIUSDMG
+	+ACTIVATEIMPACT
+	+ROLLSPRITE
+	+ROLLCENTER
+	+HITTRACER
+	speed 120
+	DeathSound "FireCast"
+	States
+	{
+	Spawn:
+		UXSH A 0 Nodelay 
+		UXSH ABCDEF 1 Bright {
+		A_SetRoll(roll+20);
+		}
+		Goto Spin
+	Spin:
+		UXSH G 1 Bright {
+		A_SetRoll(roll+20);
+		}
+		Loop
+	Death:
+		TNT1 A 0 Bright A_CheckProximity("PrismActive","PrismLB",100,1) 
+		Goto RealDeath
+	PrismActive:
+		UXSH F 0 Bright A_GiveInventory("Spearcheck1",1,AAPTR_TRACER) //1.0 flood prevention
+		UXSH F 0 Bright A_GiveInventory("LightningCheck",1,AAPTR_TRACER)  
+		Goto RealDeath
+	RealDeath:
+		SUNP A 0 A_StopSoundEx("SoundSlot7")
+		SUNP A 0 
+		{
+		A_Stop;
+		A_SetScale(1.1,1.1);
+		A_Explode(random(7,12)+random(8,12),40,XF_THRUSTZ,true,80);
+		}
+		SUNP C 2 Bright
+		SUNP D 2 Bright
+		SUNP E 2 Bright
+		SUNP F 2 Bright
+		SUMP G 2 Bright A_SpawnItemEx ("FireLaserX",0,0,0,0,0,0)
+		SUMP H 2 Bright
+		Stop
+	}
+}
+
+Actor SunProjectileTrail //JT- A psuedo heat-mirage effect
+{
+	Height 2
+	Radius 10
+	Damage 0
+	Speed 0
+	RenderStyle Add
+	Alpha 0.3
+	Scale 0.6
+	Gravity 0.05
+	Mass 10
+	+FORCEXYBILLBOARD
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+DROPOFF
+	+ROLLSPRITE
+	+ROLLCENTER
+	States
+	{
+	Spawn:
+		UXSH C 1 Bright {
+			A_FadeOut(0.05);
+			A_SetRoll(roll-40);
+			A_ChangeVelocity(random(-6,3),random(-2,2),random(-1,-3),CVF_RELATIVE);
+			}
+		Loop
+	}
+}
+
+Actor Solarbeam //JT- Creates appearance for Laser
+{
+	Height 1
+	Radius 4
+	Damage 0
+	RenderStyle Add
+	Speed 55
+	Alpha 0.7
+	XScale 0.2
+	YScale 0.4
+	Decal "SerpentScorch" //JT- Seems to be ignored?
+	Species "PlayerAlly"
+	ProjectileKickBack 500
+	PROJECTILE
+	+ALLOWTHRUFLAGS
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+FORCEDECAL
+	+MTHRUSPECIES
+	+THRUSPECIES
+	+FORCEXYBILLBOARD
+	States
+	{
+	Spawn:
+		SUP2 AAAAAAAAAAAAAAAAAAAAAAAA 1 Bright A_FadeOut(0.15)
+		//SUP2 AAAABBBBCCCCDDDDEEEEFFFF 1 Bright A_FadeOut(0.15)
+		Stop
+	XDeath:
+		SUP2 A 1 Bright A_Playsound("LaserHit",0,0.6,false,ATTN_STATIC,false,0.9)
+		Stop
+	}
+}
+
+Actor SolarbeamPhat : Solarbeam //gets visually replaced by model anyways.
+{
+Radius 6
+}
+
+ACTOR DiscoBeam : Solarbeam //RED
+{
+	RenderStyle Add //Translucent
+	Alpha 0.6
+	XScale 0.1
+	YScale 0.2
+	States
+	{
+	Spawn:
+		D1SC GGGG 1 Bright A_FadeOut(0.15)
+	Death:
+		D1SC GGGG 1
+		Stop
+	}
+}
+
+ACTOR DiscoBeam2 : Solarbeam //Orange
+{
+	RenderStyle Add //Translucent
+	Alpha 0.6
+	XScale 0.1
+	YScale 0.2
+	States
+	{
+	Spawn:
+		D1SC FFFF 1 Bright A_FadeOut(0.15)
+	Death:
+		D1SC FFFF 1
+		Stop
+	}
+}
+
+ACTOR DiscoBeam3 : Solarbeam //Yellows
+{
+	RenderStyle Add //Translucent
+	Alpha 0.6
+	XScale 0.1
+	YScale 0.2
+	States
+	{
+	Spawn:
+		D1SC EEEE 1 Bright A_FadeOut(0.15)
+	Death:
+		D1SC EEEE 1
+		Stop
+	}
+}
+
+ACTOR DiscoBeam4 : Solarbeam //Green
+{
+	RenderStyle Add //Translucent
+	Alpha 0.6
+	XScale 0.1
+	YScale 0.2
+	States
+	{
+	Spawn:
+		D1SC CCCC 1 Bright A_FadeOut(0.15)
+	Death:
+		D1SC CCCC 1
+		Stop
+	}
+}
+
+ACTOR DiscoBeam5 : Solarbeam //Blue
+{
+	RenderStyle Add //Translucent
+	Alpha 0.6
+	XScale 0.1
+	YScale 0.2
+	States
+	{
+	Spawn:
+		D1SC AAA 1 Bright A_FadeOut(0.2)
+	Death:
+		D1SC AAA 1
+		Stop
+	}
+}
+
+ACTOR DiscoBeam6 : Solarbeam //Purple
+{
+	RenderStyle Add //Translucent
+	Alpha 0.6
+	XScale 0.1
+	YScale 0.2
+	States
+	{
+	Spawn:
+		D1SC HHHH 1 Bright A_FadeOut(0.15)
+	Death:
+		D1SC HHHH 1
+		Stop
+	}
+}
+
+ACTOR RainbowBolt : SunProjectile
+{
+	Damage (random(28,48))
+	RenderStyle Translucent
+	Alpha 0.5
+	XScale 0.35
+	YScale 0.35
+	SeeSound "CruxShots"
+	MissileType "SunProjectileTrailRainbow" //0.84 - New Lightbringer stuff
+	MissileHeight 8
+	States
+	{
+	Spawn:
+		MGMS AAAAAHHHHHGGGGGFFFFFEEEEEFFFFFDDDDDCCCCCBBBBB 2 Bright A_SetScale (frandom(0.3,0.55))
+		Loop
+	Death:
+		MGMS AAAAA 1 A_FadeOut(0.2)
+		Stop
+	}
+}
+
+ACTOR RainbowBoltMutate : RainbowBolt //Fired by mutated Prism.
+{
+Damage (random(42,68))
+}
+
+Actor SunProjectileTrailRainbow //JT- RAINBOW SPARKLIES!!! WOOOOOAAAAHHHH!
+{
+	Height 2
+	Radius 10
+	Damage 0
+	Speed 0
+	RenderStyle Add
+	Alpha 0.6
+	Scale 0.55
+	Gravity 0.05
+	Mass 10
+	+FORCEXYBILLBOARD
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+DROPOFF
+	+ROLLSPRITE
+	+ROLLCENTER
+	+PAINLESS //precaution measure for wand of hitscan which uses this.
+	States
+	{
+	Spawn:
+		RNBW A 0 Nodelay 
+		RNBW A 0 A_Jump(256,0,1,2,3,4,5,0,1)
+	Spawn2:
+		RNBW ABCDEF 3 Bright {
+			A_FadeOut(0.07);
+			A_SetRoll(roll-40);
+			A_ChangeVelocity(random(-6,3),random(-2,2),random(3,-2),CVF_RELATIVE);
+			}
+		Goto Spawn2
+	}
+}
+
+ACTOR FireLaserX : BulletPuff //JT- A derevative of FireActive; its made to give an impact to the laser/shots!
+{
+	+NOCLIP
+	+NOBLOCKMAP
+	+DONTSPLASH
+	+FRIENDLY
+	+NODAMAGETHRUST
+	+PAINLESS
+	+NOGRAVITY
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+BLOODLESSIMPACT
+	+HITTARGET //This is to allow the Prism to work.
+	Damagetype Fire //JT- So that the laser can burn trees etc.
+	RenderStyle Add
+	Species "PlayerAlly"
+	States
+	{
+	Spawn:
+		CFCF B 1 Bright Nodelay A_SetScale (1.2)
+		CFCF CD 1 Bright A_FadeOut(0.1)
+		CFCF E 2 Bright 
+		CFCF F 2 Bright A_CheckProximity("PrismActive","PrismLB",100,1) 
+		Goto FireLoop
+	PrismActive:
+		CFCF F 0 Bright A_GiveToTarget("LightningCheck",1)
+		//CFCF F 0 Bright A_GiveToTarget("LightningCheck",1,AAPTR_PLAYER1)
+		Goto DieLaser
+	FireLoop:
+		CFCF G 1 Bright A_SetScale (1.0)	//Here is a series of scale downs to make it shrink
+		CFCF G 1 Bright A_SpawnItemEx ("SmokyAlabaster",0,0,6,0,0,1)
+		CFCF H 1 Bright A_SetScale (.8)
+		CFCF H 1 Bright
+		CFCF I 1 Bright A_SetScale (.7)
+		CFCF I 1 Bright
+		CFCF J 1 Bright A_SetScale (.6)
+		CFCF J 1 Bright 
+		CFCF K 1 Bright A_SetScale (.5)
+		CFCF K 1 Bright
+		CFCF L 1 Bright A_SetScale (.3)
+		CFCF L 1 Bright 
+		CFCF M 1 Bright A_SetScale (.1)
+		CFCF M 1 Bright 
+		Goto DieFire
+	DieLaser:
+		TNT1 A 0 A_SpawnItemEx("SunProjectileTrailRainbow",0,0,0,random(-2,2),random(-1,1),frandom(0.3,-0.3))
+		TNT1 A 1 A_PlaySound ("VentiCharge", CHAN_6, 1,false,ATTN_STATIC,false,0.9)
+		Stop
+	DieFire:
+		TNT1 A 0 //buffer frame for better flames.
+		TNT1 A 1 A_PlaySound ("LaserHit", CHAN_6, 1,false,ATTN_STATIC,false,0.9)
+	Death:
+		CFCF NOP 2 Bright 
+		CFCF P 0 Bright A_GiveToTarget("LightningCheck",1,AAPTR_TARGET)
+		Stop
+	}
+}
+
+ACTOR FireLaserSuper	//Another version of FireActive; that launches lasers (LB secondary upgrade)
+{
+	+NOCLIP
+	+NOBLOCKMAP
+	+DONTSPLASH
+	+FRIENDLY
+	+NODAMAGETHRUST
+	+PAINLESS
+	+NOGRAVITY
+	//+ALWAYSPUFF
+	+HITTARGET //This is to allow the Prism to work.
+	Damagetype Fire //JT- So that the laser can burn trees etc.
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		TNT1 A 0 Nodelay A_PlaySound ("FireStart", 0, .025)
+		TNT1 A 0 A_SetArg(0,angle)
+		TNT1 A 0 Bright A_CheckProximity("PrismActive","PrismLB",100,1) 
+		Goto FloorCheck
+	PrismActive:
+		CFCF F 0 Bright A_GiveToTarget("LightningCheck",1)
+	FloorCheck:
+		TNT1 A 0 A_JumpIf((GetZAt(0,0) == z),"FloorTwist")
+		Goto CeilingCheck
+	FloorTwist:
+		TNT1 A 0 {A_SetPitch(pitch-30); A_SetAngle(angle+180);}
+		Goto Proceed
+	CeilingCheck:
+		TNT1 A 0 A_JumpIf((GetZAt(0,0,0,GZF_CEILING) == z),"CeilingTwist")
+		Goto Proceed
+	CeilingTwist:
+		TNT1 A 0 {A_SetPitch(pitch+30); A_SetAngle(angle+180);}
+	Proceed:
+		TNT1 A 0 A_JumpIf(Args[0]<64, "TwistShot")
+	RegularShot:
+		CFCF A 3 Bright {A_SetAngle(angle-(random(33,55))); A_LookEx(LOF_NOJUMP,0,180,0,360); A_Facetarget(180,180);}
+		CFCF BC 3 Bright A_CustomRailgun(random(8,18), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireLaserX",2,1,1200,14,4,0,"DiscoBeam3",0) 
+		CFCF DEF 3 Bright 
+		Goto FireLoop
+	TwistShot:
+		TNT1 A 0 A_JumpIf(Args[0]>192, "RegularShot")
+		CFCF A 3 Bright {A_SetAngle(angle+(random(33,55))); A_LookEx(LOF_NOJUMP,0,180,0,360); A_Facetarget(180,180);}
+		CFCF BC 3 Bright A_CustomRailgun(random(8,18), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireLaserX",2,1,1200,14,4,0,"DiscoBeam3",0) 
+		CFCF DEF 3 Bright 
+	FireLoop:
+		CFCF G 1 Bright A_SetScale (.9)	//Here is a series of scale downs to make it shrink
+		CFCF G 1 Bright A_SpawnItemEx("HammerBlastSpark",random(-4,4),random(-4,4),1,-2,random(-3,1),random(3,7))
+		CFCF H 1 Bright A_SetScale (.8)
+		CFCF H 1 Bright 
+		CFCF I 1 Bright A_SetScale (.7)
+		CFCF I 1 Bright 
+		CFCF J 1 Bright A_SetScale (.6)
+		CFCF J 1 Bright 
+		CFCF K 1 Bright A_SetScale (.5)
+		CFCF K 1 Bright 
+		CFCF L 1 Bright A_SetScale (.4)
+		CFCF L 1 Bright A_SpawnItemEx("HammerBlastSpark",random(-4,4),random(-4,4),1,-2,random(-3,1),random(3,7))
+		CFCF M 1 Bright A_SetScale (.3)
+		CFCF M 1 Bright 
+		Goto Die
+	Die:
+		TNT1 A 0 A_Die
+		Goto Death
+	Death:
+		TNT1 A 0 A_PlaySound ("FireEnd", 0, .025)
+		CFCF P 0 Bright A_GiveToTarget("LightningCheck",1,AAPTR_TARGET)
+		CFCF NOP 2 Bright
+		Stop
+	}
+}
+
+ACTOR SunWisp : LavaSmoke //JT- Generates smoke from laser searing
+{
+	Scale 2
+	Alpha 0.1
+}
+
+ACTOR SmokyAlabaster //Smoke me a Kipper, I'll be back for breakfast!
+{
+	Renderstyle Add
+	Alpha 0.3
+	Scale 0.3
+	Radius 1
+	Height 1
+	+NOINTERACTION
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOCLIP
+	+ROLLSPRITE
+	+FORCEXYBILLBOARD
+	States
+	{
+	Spawn:
+		TNT1 A 0 Nodelay {if (random(1,2) == 1) // randomly flips 
+			{ A_Changeflag("SPRITEFLIP",TRUE);}}
+		TNT1 A 0 {if (random(1,2) == 1) // randomly flips 
+			{ A_Changeflag("YFLIP",TRUE);}}
+		TNT1 A 0 A_SetRoll(random(0,255))
+		TNT1 A 0 A_ChangeVelocity(random(-1,1),random(-1,1),frandom(0,1),CVF_RELATIVE)
+	SmokyBitch:
+		5M0K ABCDEFGHIJKLMNOPQ 2 {A_FadeOut(0.01); A_Setroll(roll+10);}
+		5M0K R 2 A_FadeOut(0.005)
+		Wait
+	}
+}
+
+ACTOR SmokyOilyX : SmokyAlabaster
+{
+	Renderstyle Translucent
+	Alpha 0.33
+	Scale 0.5
+	States
+	{
+	SmokyBitch:
+		BM0K ABCDEFGHIJKL 2 {
+		A_FadeOut(0.03); 
+		A_Setroll(roll+random(-40,60)); 
+		A_Setscale(scalex+(random(2,16)/15),scaley+(random(2,16)/15));
+		A_ChangeVelocity(random(-4,4),random(-4,4),frandom(-1,4),CVF_RELATIVE);
+		}
+		BM0K M 1 A_Fadeout(0.1)
+		Stop
+	}
+}
+
+Actor SmokyOily
+{
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	+ROLLSPRITE
+	Var Int User_GrowthFactor;
+	RenderStyle Translucent
+	Alpha 0.0
+	Radius 1
+	Height 1
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("User_GrowthFactor", ScaleX * 1.1)
+			TNT1 A 0 A_SetScale(ScaleX)
+			TNT1 A 0 A_Jump(256, "SpriteA", "SpriteB", "SpriteC", "SpriteD")
+		SpriteA:
+			SMFU A 0
+			Goto FadeIn
+		SpriteB:
+			SMFU B 0
+			Goto FadeIn
+		SpriteC:
+			SMFU C 0
+			Goto FadeIn
+		SpriteD:
+			SMFU D 0
+			Goto FadeIn
+		FadeIn:
+			"####" "#" 1 A_FadeIn(FRandom(0.05, 0.08))
+			"####" "#" 0 A_JumpIf(Alpha >= 0.35, "SmokyBitch")
+			Loop
+		SmokyBitch:
+			"####" "#" 2 A_SetScale(ScaleX + FRandom(0.05, 0.2) * User_GrowthFactor * 0.001)
+			"####" "#" 0 A_FadeOut(FRandom(0.02, 0.06))
+			"####" "#" 0 A_Setroll(Roll+Random(-40,40))
+			"####" "#" 0 A_ChangeVelocity(random(-3,3),random(-3,3),frandom(0,1),CVF_RELATIVE)
+			Loop
+	}
+}
+
+ACTOR ImShattered //just causes a shatter effect, for mini-prism.
+{
+	+NOINTERACTION
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOCLIP
+	+ROLLSPRITE
+	+FORCEXYBILLBOARD
+	+INVISIBLE
+	States
+	{
+	Spawn:
+		TNT1 A 0 
+		TNT1 A 1 A_IceGuyDie
+		Stop
+	}
+}
+
+Actor PrismLB //The Disco Prism of Doom.
+{
+	Renderstyle Translucent
+	Species "PlayerPrism"
+	Radius 20
+	Height 42
+	Scale 0.55
+	Mass 12
+	Alpha 0.35
+	FloatBobStrength 0.2
+	+SHOOTABLE
+	+NOGRAVITY
+	+NOTELEPORT
+	+NOTARGET
+	+DONTHARMSPECIES
+	+NOBLOOD
+	+DONTBLAST
+	+CANTSEEK
+	+FRIENDLY
+	+FORCEXYBILLBOARD
+	+STANDSTILL
+	+SOLID
+	+FLOATBOB
+	+INVULNERABLE
+	+DONTTHRUST
+	States
+	{
+	Spawn: 
+		TNT1 A 0
+		Goto Hover
+	Hover:
+		//PRIS ABCDEFGHIJKLMNOPQRSTUW 2 A_JumpIfInventory("LightningCheck",1,"SplitLaser") 
+		//^^ This was the old version. Much more efficient; but the long ass way lets you keep pretty colours!!
+		PRIS A 0 A_JumpIf((CountInv("QUFLMCounter") >=1),((CountInv("QUFLMCounter")*2)))
+		PRIS A 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS B 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS C 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS D 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS E 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS F 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS G 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS H 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS I 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS J 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS K 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS L 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS M 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS N 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS O 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS P 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS Q 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS R 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS S 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS T 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS U 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		"####" "#" 1 A_GiveInventory("QUFLMCounter",1)
+		PRIS W 1 A_JumpIfInventory("LightningCheck",1,"SplitLaser") //somehow I forgot V when making sprites lol
+		"####" "#" 1 A_TakeInventory("QUFLMCounter")
+		PRIS A 0 A_GiveInventory("ChainBolt",1) //eventually kills itself even if ignored by player.
+		"####" "#" 0 A_JumpIfInventory("Chainbolt",22,"Death")
+		Loop
+	SplitLaser: //AS DEAD AS DISCO!!
+		"####" "#" 0  A_JumpIfInventory("Spearcheck1",1,"DakkaFireLesser")
+		"####" "#" 0  A_JumpIfInventory("CoptersSound",1,"DakkaFire")
+		"####" "#" 0
+		{	
+			A_ClearTarget;
+			A_TakeInventory("LightningCheck");
+			A_LookEx(LOF_NOJUMP,60,900,0,360);
+			A_FaceTarget(180,90);	
+			if(CountInv("LightUpgrade") == 5 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+				if (random(1,4) > 1) //upgrade increases lifespan by roughly 25%
+				{
+				A_GiveInventory("ChainBolt",1);
+				}
+				}
+			else
+				{
+				A_GiveInventory("ChainBolt",1);
+				}
+		}
+		"####" "#" 3
+		{	
+			A_GiveInventory("BowCharge1",1);
+			A_SetRenderStyle(0.5,STYLE_Translucent);
+			if(CountInv("BowCharge1") == 6)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam5",7);
+				 A_TakeInventory("BowCharge1");
+				}
+			else if (CountInv("BowCharge1") == 5)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam4",7);
+				}
+			else if (CountInv("BowCharge1") == 4)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam3",7);
+				}
+			else if (CountInv("BowCharge1") == 3)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam2",7);
+				}
+			else if (CountInv("BowCharge1") == 2)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam",7);
+				}
+			else 
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam6",7);
+				}	
+		}
+		"####" "#" 3
+		{
+			A_ClearTarget;
+			A_GiveInventory("BowCharge1",1);
+			A_SetRenderStyle(0.7,STYLE_Translucent);
+			A_LookEx(LOF_NOJUMP,60,900,0,360);
+			if(CountInv("BowCharge1") == 6)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam5",7);
+				 A_TakeInventory("BowCharge1");
+				}
+			else if (CountInv("BowCharge1") == 5)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam4",7);
+				}
+			else if (CountInv("BowCharge1") == 4)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam3",7);
+				}
+			else if (CountInv("BowCharge1") == 3)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam2",7);
+				}
+			else if (CountInv("BowCharge1") == 2)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam",7);
+				}
+			else 
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam6",7);
+				}
+		}
+		"####" "#" 3
+		{
+			A_ClearTarget;
+			A_GiveInventory("BowCharge1",1);
+			A_SetRenderStyle(0.35,STYLE_Translucent);
+			A_SetScale(0.55);
+			A_LookEx(LOF_NOJUMP,60,900,0,360);
+			if(CountInv("BowCharge1") == 6)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam5",7);
+				 A_TakeInventory("BowCharge1");
+				}
+			else if (CountInv("BowCharge1") == 5)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam4",7);
+				}
+			else if (CountInv("BowCharge1") == 4)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam3",7);
+				}
+			else if (CountInv("BowCharge1") == 3)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam2",7);
+				}
+			else if (CountInv("BowCharge1") == 2)
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam",7);
+				}
+			else 
+				{A_CustomRailgun(random(20,35), 0, "FF 00 00", "FF 00 00", RGF_SILENT|RGF_FULLBRIGHT|RGF_EXPLICITANGLE,0,0,"FireActive",0,(CountInv("BowCharge1")-3),1880,14,3,0,"DiscoBeam6",7);
+				}
+		}
+		"####" "#" 0 A_SetRenderStyle(0.35,STYLE_Translucent)
+		"####" "#" 0 A_JumpIfInventory("Chainbolt",22,"Death")
+		"####" "#" 0 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		Goto Hover 
+	DakkaFire:
+		"####" "#" 1
+		{	
+			A_ClearTarget;
+			A_TakeInventory("LightningCheck");
+			A_TakeInventory("CoptersSound");
+			A_LookEx(LOF_NOJUMP,60,900,0,360);
+			A_FaceTarget(180,90);	
+			if(CountInv("LightUpgrade") == 5 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+				A_GiveInventory("ChainBolt",3);
+				}
+				else
+				{
+				A_GiveInventory("ChainBolt",4);
+				}
+			A_PlaySound ("PrismDakka",CHAN_6,1.1,false,ATTN_NONE,false,frandom(0.75,0.9));
+		}
+		"####" "#" 2
+		{
+			A_SpawnItemEx("RainbowBolt",26,13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,0,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,-13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SetRenderStyle(0.8,STYLE_Translucent);
+			A_SetScale(0.6);
+		}
+		"####" "#" 2
+		{
+			A_SpawnItemEx("RainbowBolt",26,13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,0,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,-13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			//A_SetRenderStyle(0.35,STYLE_Translucent);
+			//A_SetScale(0.55);
+			//,random(45,50)* cos(pitch),random(-40,40),(16 - (40 * sin(pitch)))
+		}
+		"####" "#" 2
+		{
+			A_SpawnItemEx("RainbowBolt",26,13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,0,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,-13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			//A_SetRenderStyle(0.8,STYLE_Translucent);
+			//A_SetScale(0.6);
+		}
+		"####" "#" 2
+		{
+			A_SpawnItemEx("RainbowBolt",26,13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,0,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBolt",26,-13,random(26,50),random(8,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SetRenderStyle(0.35,STYLE_Translucent);
+			A_SetScale(0.55);
+		}
+		"####" "#" 0 A_JumpIfInventory("Chainbolt",22,"Death")
+		"####" "#" 0 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		Goto Hover 
+	DakkaFireLesser: //To stop projectile flood/lag/OP if using the Dakka Primary.
+		"####" "#" 1
+		{	
+			A_ClearTarget;
+			A_TakeInventory("LightningCheck");
+			A_TakeInventory("SpearCheck1");
+			A_LookEx(LOF_NOJUMP,60,900,0,360);
+			A_FaceTarget(180,90);	
+			if(CountInv("LightUpgrade") == 5 || CountInv("LightUpgrade") == 6 || CountInv("LightUpgrade") == 8 || CountInv("LightUpgrade") == 9)
+				{
+				A_GiveInventory("ChainBolt",randompick(0,0,0,1,1)); //so if you did primary prism, mutated normal, quite efficient
+				}
+				else
+				{
+				A_GiveInventory("ChainBolt",randompick(0,1,1));
+				}
+			A_PlaySound ("PrismDakka",CHAN_6,1.1,false,ATTN_NONE,false,frandom(0.75,0.9));
+		}
+		"####" "#" 2
+		{
+			A_SpawnItemEx("RainbowBoltMutate",26,7,random(26,50),random(16,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SpawnItemEx("RainbowBoltMutate",26,-7,random(26,50),random(16,35)* cos(pitch),0,0,random(-3,3)- (40 * sin(pitch)),SXF_SETMASTER);
+			A_SetRenderStyle(0.8,STYLE_Translucent);
+			A_SetScale(0.6);
+		}
+		"####" "#" 0 A_JumpIfInventory("Chainbolt",22,"Death")
+		"####" "#" 0 A_JumpIfInventory("LightningCheck",1,"SplitLaser")
+		Goto Hover 
+	Death:
+		TNT1 A 1 A_IceGuyDie
+		TNT1 A 5
+		Stop
+	}
+}
+
+ACTOR LBExhaust 
+{
+	+PUFFONACTORS
+	+EXTREMEDEATH
+	+ALWAYSPUFF
+	+NOGRAVITY
+	+NOINTERACTION
+	Translation "217:223=203:210", "146:163=128:145", "67:80=203:210"
+	Alpha 0.5
+	Scale 0.6
+	Speed 0
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		FAXE S 0 Nodelay 
+		FAXE S 2 A_Stop
+		FAXE STUVWX 2 Bright A_Fadeout(0.05)
+		Stop
+	}
+}
+
