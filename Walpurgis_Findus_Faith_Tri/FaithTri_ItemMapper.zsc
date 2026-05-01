@@ -1,0 +1,79 @@
+class WalpurgisItemMapper {
+    // Heretic items (Spawners.txt) + Faith Tri items (Spawners_faith_tri.txt)
+    static const name originals[] = {
+        'ArtiHealth',
+        'ArtiSuperHealth',
+        'ArtiTomeOfPower',
+        'BagOfHolding',
+        'CrystalVial',
+        'EnchantedShield',
+        'SkullRod',
+        'BlasterHefty50',
+        'DSparilHefty',
+        'DSparilMed',
+        'GoldWandMed',
+        'JadeHefty',
+        'JadeMed',
+        'JadeWand',
+        'MaceMed',
+        'PhoenixRodHefty2',
+        'PhoenixRodMed',
+        'SoulvergePiece3'
+    };
+
+    static const name replacements[] = {
+        'SpawnerQuartz',
+        'SpawnerBigHP',
+        'SpawnerTome',
+        'SpawnerBPH',
+        'SpawnerVials',
+        'SpawnerShieldMagic',
+        'SpawnerHlStf',
+        'SpawnerAmmoHMed3Hefty',
+        'SpawnerDSparilHefty',
+        'SpawnerDSparilMed',
+        'SpawnerAmmoHMed1',
+        'SpawnerJadeHefty',
+        'SpawnerJadeMed',
+        'SpawnerJadeWand',
+        'SpawnerAmmoHMed6',
+        'SpawnerAmmoH7',
+        'SpawnerAmmoHMed5',
+        'SpawnerSoulvergePiece3'
+    };
+
+    static String RemapName(String originalName) {
+        if (originalName == "") return originalName;
+
+        name typeName = originalName;
+        for (int i = 0; i < WalpurgisItemMapper.originals.Size(); i++) {
+            if (WalpurgisItemMapper.originals[i] == typeName) {
+                return WalpurgisItemMapper.replacements[i];
+            }
+        }
+
+        return originalName;
+    }
+}
+
+class Chest_FaithTri : Chest replaces Chest {
+    override void postBeginPlay() {
+        super.postBeginPlay();
+        user_itemname0 = WalpurgisItemMapper.RemapName(user_itemname0);
+        user_itemname1 = WalpurgisItemMapper.RemapName(user_itemname1);
+        user_itemname2 = WalpurgisItemMapper.RemapName(user_itemname2);
+        user_itemname3 = WalpurgisItemMapper.RemapName(user_itemname3);
+        user_itemname4 = WalpurgisItemMapper.RemapName(user_itemname4);
+    }
+}
+
+class Safe_FaithTri : Safe replaces Safe {
+    override void postBeginPlay() {
+        super.postBeginPlay();
+        user_itemname0 = WalpurgisItemMapper.RemapName(user_itemname0);
+        user_itemname1 = WalpurgisItemMapper.RemapName(user_itemname1);
+        user_itemname2 = WalpurgisItemMapper.RemapName(user_itemname2);
+        user_itemname3 = WalpurgisItemMapper.RemapName(user_itemname3);
+        user_itemname4 = WalpurgisItemMapper.RemapName(user_itemname4);
+    }
+}
