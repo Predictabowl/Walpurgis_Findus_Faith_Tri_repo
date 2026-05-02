@@ -2,6 +2,11 @@
 
 This mod acts as a compatibility patch to allow **Faithless: Trilogy** (a high-quality Heretic expansion) and **Walpurgis** to be played together without breaking either mod's weapon systems.
 
+## Version History
+
+### 1.1.1
+- Added remapping for items found in Treasure Chests and Strongboxes. These items now correctly use Walpurgis spawners instead of vanilla Heretic or Faithless-specific items.
+
 ## What It Does
 
 Both Walpurgis (the Crusader's Slot 2 weapon) and Faithless: Trilogy feature a weapon named `Lightbringer`. Without this patch, GZDoom crashes due to a class name collision because two `Lightbringer` items are loaded into the engine's memory natively via ZScript and DECORATE.
