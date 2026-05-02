@@ -18,7 +18,13 @@ class WalpurgisItemMapper {
         'MaceMed',
         'PhoenixRodHefty2',
         'PhoenixRodMed',
-        'SoulvergePiece3'
+        'SoulvergePiece3',
+        'Blaster2',
+        'PhoenixRod2',
+        'GoldWandAmmo2',
+        'GoldWandHefty2',
+        'CrossbowHefty2',
+        'SkullRodHefty2'
     };
 
     static const name replacements[] = {
@@ -39,7 +45,13 @@ class WalpurgisItemMapper {
         'SpawnerAmmoHMed6',
         'SpawnerAmmoH7',
         'SpawnerAmmoHMed5',
-        'SpawnerSoulvergePiece3'
+        'SpawnerSoulvergePiece3',
+        'SpawnerBlaster2',
+        'SpawnerPhoenixRod2',
+        'SpawnerAmmoH1',
+        'SpawnerAmmoH5',
+        'SpawnerAmmoH6',
+        'SpawnerAmmoH77'
     };
 
     static String RemapName(String originalName) {

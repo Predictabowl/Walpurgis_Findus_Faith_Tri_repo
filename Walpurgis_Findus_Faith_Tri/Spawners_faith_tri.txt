@@ -261,6 +261,52 @@ ACTOR SpawnerMaceCannon : RandomSpawner replaces MaceCannon
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// HERETIC WEAPON REPLACERS (wt_weapons.zsc)
+// Faith Tri replaces these vanilla weapons, bypassing Walpurgis spawners.
+// Each spawner here mirrors the corresponding vanilla spawner in Spawners.txt.
+////////////////////////////////////////////////////////////////////////////////
+
+// GoldWand2 replaces GoldWand -> mirrors SpawnerWand
+ACTOR SpawnerGoldWand2 : RandomSpawner replaces GoldWand2
+{
+    DropItem "SpawnAetherial"
+}
+
+// Crossbow2 replaces Crossbow -> mirrors SpawnerXbow
+ACTOR SpawnerCrossbow2 : RandomSpawner replaces Crossbow2
+{
+    DropItem "BlueWeapon"
+}
+
+// Blaster2 replaces Blaster -> mirrors SpawnerClaw
+ACTOR SpawnerBlaster2 : RandomSpawner replaces Blaster2
+{
+    DropItem "BlueWeapon"
+}
+
+// SkullRod2 replaces SkullRod -> mirrors SpawnerHlStf
+ACTOR SpawnerSkullRod2 : RandomSpawner replaces SkullRod2
+{
+    DropItem "GreenWeapon"
+}
+
+// PhoenixRod2 replaces PhoenixRod -> mirrors SpawnerNix
+ACTOR SpawnerPhoenixRod2 : RandomSpawner replaces PhoenixRod2
+{
+    DropItem "GreenWeapon"
+}
+
+// Gauntlets2 replaces Gauntlets -> mirrors SpawnerNecro
+ACTOR SpawnerGauntlets2 : RandomSpawner replaces Gauntlets2
+{
+    DropItem "SpecialWeapon", 255, 5
+    DropItem "ArmourCheckSmall", 255, 1
+}
+
+// Staff2 replaces Staff — Staff is the starting weapon, never map-placed. No spawner needed.
+
+
+////////////////////////////////////////////////////////////////////////////////
 // UNUSED / DEAD CODE SECTION
 ////////////////////////////////////////////////////////////////////////////////
 
