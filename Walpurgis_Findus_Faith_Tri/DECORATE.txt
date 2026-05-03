@@ -1,3 +1,4 @@
 #include "Spawners_faith_tri.txt"
 #include "FaithTri_ItemFixes.txt"
 #include "actors/CrusaderLB.txt"
+#include "actors/WarlockFix.txt"

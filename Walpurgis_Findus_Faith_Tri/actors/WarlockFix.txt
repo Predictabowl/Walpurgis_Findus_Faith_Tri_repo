@@ -1,0 +1,12 @@
+// Redefining WarlockW to fix the collision issue
+// We inherit from the original WarlockW to keep all its states and logic,
+// but we explicitly override the Radius to match the Disciple (Wizard).
+
+ACTOR WarlockW_FaithFix : WarlockW replaces WarlockW
+{
+    // The original WarlockW (Pain Elemental) has a Radius of 31.
+    // The monster it replaces (Wizard/Disciple) has a Radius of 16.
+    // Setting it to 16 ensures it fits in all vanilla teleport/spawn closets.
+    Radius 16
+    
+}
