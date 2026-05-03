@@ -68,6 +68,19 @@ ACTOR SpawnerCoinPurse : RandomSpawner replaces CoinPurse
 	DropItem "SmallGift", 255, 1
 }
 
+// A simple copy of the item that has NO 'replaces' tag.
+// This allows us to spawn it without causing an infinite loop.
+ACTOR SafeBagOfPlenty : ArtiBagOfPlenty {}
+
+// ACTOR ArtiBagOfPlenty : PowerupGiver
+// Gives 25s of infinite ammo. Replaced with 50% chance of AmbitW (Walpurgis Infinite Ammo)
+// and 50% chance of the original Item.
+ACTOR SpawnerBagOfPlenty : RandomSpawner replaces ArtiBagOfPlenty
+{
+	DropItem "AmbitW", 255, 1
+	DropItem "SafeBagOfPlenty", 255, 1
+}
+
 //////////////////////////////////////////
 // WEAPONS AND AMMO FROM FAITH_TRI FILES //
 //////////////////////////////////////////
