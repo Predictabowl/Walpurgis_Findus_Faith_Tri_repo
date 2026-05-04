@@ -23,12 +23,13 @@ jobs:
           cd ..
           
           # Create the final zip containing README.md and the .pk3 file
-          zip Walpurgis_Findus_Faith_Tri.zip README.md Walpurgis_Findus_Faith_Tri.pk3
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          zip "Walpurgis_Findus_Faith_Tri_${TAG_NAME}.zip" README.md Walpurgis_Findus_Faith_Tri.pk3
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: Walpurgis_Findus_Faith_Tri.zip
+          files: Walpurgis_Findus_Faith_Tri_*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
