@@ -48,7 +48,7 @@ To resolve this:
 - This allows the monster to navigate the tight closets and reliably trigger the teleport linedefs, allowing the map scripts to complete.
 
 **Compatibility Note regarding Walpurgis_Findus_Patch:**
-While `Walpurgis_Findus_Patch.pk3` is listed as optional, this compatibility mod binds the weapons to their specific slots (Slot 3) based on the `KEYCONF` settings used in the Findus Patch. Since this mod replaces the original `Lightbringer` with `WalLightbringer`, if you choose to skip the Findus Patch, you **must manually edit the `KEYCONF` file** within this mod to assign the `WalLightbringer` to your preferred weapon slots. Otherwise, the weapon will not be selectable via the number keys.
+While `Walpurgis_Findus_Patch.pk3` is listed as optional, this compatibility mod binds the weapons to their specific slots (Slot 3) based on the `KEYCONF` settings used in the Findus Patch. Since this mod replaces the original `Lightbringer` with `WalLightbringer`, if you choose to skip the Findus Patch, you **must manually remove the `KEYCONF` file** within this mod (rename it into something else).
 
 ## Installation & Setup
 
