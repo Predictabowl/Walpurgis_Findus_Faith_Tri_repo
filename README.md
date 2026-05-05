@@ -4,6 +4,10 @@ This mod acts as a compatibility patch to allow **Faithless: Trilogy** (a high-q
 
 ## Version History
 
+### 2.0.0
+
+- Updated KEYCONF and README to be compatible with Walpurgis_Findus_Patch v2.0.0 (inheritance-based architecture).
+
 ### 1.3.0
 
 - Added Warlock Collision Fix (see "Warlock Collision Fix & Softlock Prevention").
