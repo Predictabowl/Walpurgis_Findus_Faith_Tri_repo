@@ -64,7 +64,7 @@ While `Walpurgis_Findus_Patch.pk3` is listed as optional, this compatibility mod
 
 To ensure the engine correctly overwrites spawners and resolves asset conflicts, you must load the files in this specific sequence:
 
-1. `faithless.pk3` (Faithless: Trilogy)
+1. `faith_tri.pk3` (Faithless: Trilogy)
 2. `+Walpurgis-JT-1.0-A.pk3`
 3. `Walpurgis_Findus_Patch.pk3` *(Optional)*
 4. `Walpurgis_Findus_Faith_Tri.pk3` *(This compatibility mod)*
