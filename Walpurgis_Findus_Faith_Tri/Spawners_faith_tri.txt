@@ -324,7 +324,7 @@ ACTOR SpawnerGauntlets2 : RandomSpawner replaces Gauntlets2
 ////////////////////////////////////////////////////////////////////////////////
 actor HexenArtiBlastRadius_Findus: RandomSpawner replaces HexenArtiBlastRadius
 {
-	DropItem "ArtiBlastRadiusW", 255, 1
+	DropItem "ArtiBlastRadiusW"
 }
 
 

@@ -1,0 +1,9 @@
+map e3m9 "$FAITH_E3M9"
+{
+    music = "$MUSIC_SOUL_9"
+    doublesky
+    sky1 = "SKYWALL2", 0.0
+    sky2 = "HSKY1", 0.2
+    cluster = 68
+    smoothlighting
+}
