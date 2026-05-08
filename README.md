@@ -4,6 +4,10 @@ This mod acts as a compatibility patch to allow **Faithless: Trilogy** (a high-q
 
 ## Version History
 
+### 2.0.1
+
+- Added Disc of Repulsion, to avoid inventory duplicates.
+
 ### 2.0.0
 
 - Updated KEYCONF and README to be compatible with Walpurgis_Findus_Patch v2.0.0 (inheritance-based architecture).
