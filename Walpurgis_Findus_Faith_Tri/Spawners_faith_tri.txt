@@ -110,10 +110,11 @@ ACTOR SpawnerDSparilHefty : RandomSpawner replaces DSparilHefty
     DropItem "ActuallyNothingLol", 255, 1
 }
 
+// This repalcement is here because the Staff is needed to complete Episode 3
+// DSparilStaff_Faith is defined in Zscript because of the limitations of DECORATE
 ACTOR SpawnerDSparilStaff : RandomSpawner replaces DSparilStaff
 {
-    // High tier weapon (Slot 8). Replacing with Special/Ultimate equivalent.
-    DropItem "SpecialWeapon", 255, 1
+	DropItem "DSparilStaff_FaithTri", 255, 1
 }
 
 // --- JADE WAND ---

@@ -4,6 +4,10 @@ This mod acts as a compatibility patch to allow **Faithless: Trilogy** (a high-q
 
 ## Version History
 
+### 2.1.0
+
+- Added a fix/workaround for the chapel puzzle on map E3M9.
+
 ### 2.0.1
 
 - Added Disc of Repulsion, to avoid inventory duplicates.
