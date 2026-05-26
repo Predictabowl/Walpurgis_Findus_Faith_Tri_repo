@@ -82,5 +82,5 @@ To ensure the engine correctly overwrites spawners and resolves asset conflicts,
 ## Related Projects
 
 - **Findus Patch:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_Patch_repo)
-- **No Shield Frag:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_NoShieldFrag_repo)
+- **Minor Fixes:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_MinorFixes)
 - **Faithless Trilogy Compatibility:** [GitHub Repo](https://github.com/Predictabowl/Walpurgis_Findus_Faith_Tri_repo)
